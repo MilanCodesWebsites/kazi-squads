@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -58,25 +58,38 @@ export default function AuthCallbackPage() {
   }, [router, tokenHash, type, redirectTo])
 
   return (
+    <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 text-center">
+      <h1 className="text-xl font-semibold text-black">Signing you in…</h1>
+      <p className="mt-2 text-sm text-black/60">
+        {done ? 'Redirecting…' : 'Verifying your magic link.'}
+      </p>
+
+      {error && (
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <p className="mt-5 text-sm text-black/60">
+        <Link href="/auth" className="text-lime-700 hover:underline font-semibold">
+          Back to sign in
+        </Link>
+      </p>
+    </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  return (
     <main className="min-h-screen bg-white landing-dots flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 text-center">
-        <h1 className="text-xl font-semibold text-black">Signing you in…</h1>
-        <p className="mt-2 text-sm text-black/60">
-          {done ? 'Redirecting…' : 'Verifying your magic link.'}
-        </p>
-
-        {error && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        <p className="mt-5 text-sm text-black/60">
-          <Link href="/auth" className="text-lime-700 hover:underline font-semibold">
-            Back to sign in
-          </Link>
-        </p>
-      </div>
+      <Suspense fallback={
+        <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 text-center">
+          <p className="text-sm text-black/60">Loading...</p>
+        </div>
+      }>
+        <AuthCallbackContent />
+      </Suspense>
     </main>
   )
 }
+

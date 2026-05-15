@@ -3,12 +3,12 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export default function AuthSignInPage() {
+function AuthSignInContent() {
   const searchParams = useSearchParams()
   const role = searchParams.get('role')
   const [email, setEmail] = useState('')
@@ -47,7 +47,7 @@ export default function AuthSignInPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white landing-dots">
+    <>
       <header className="max-w-6xl mx-auto px-4 md:px-8 pt-6 flex items-center justify-between">
         <Link href="/" className="text-black text-base font-semibold">
           Kazi
@@ -141,6 +141,23 @@ export default function AuthSignInPage() {
           </div>
         </div>
       </section>
+    </>
+  )
+}
+
+export default function AuthSignInPage() {
+  return (
+    <main className="min-h-screen bg-white landing-dots">
+      <Suspense fallback={
+        <header className="max-w-6xl mx-auto px-4 md:px-8 pt-6 flex items-center justify-between">
+          <Link href="/" className="text-black text-base font-semibold">
+            Kazi
+          </Link>
+        </header>
+      }>
+        <AuthSignInContent />
+      </Suspense>
     </main>
   )
 }
+
