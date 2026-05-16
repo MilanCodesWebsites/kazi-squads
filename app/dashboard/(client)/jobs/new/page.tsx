@@ -170,7 +170,7 @@ export default function NewJobPage() {
     try {
       const res = await fetch('/api/ai/job-post', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       })
 

@@ -56,7 +56,7 @@ The description should be friendly, specific, and formatted with short paragraph
           setTimeout(() => reject(new Error('Gemini timeout')), 10000)
         }),
       ])
-    } catch (aiErr: any) {
+    } catch (aiErr: unknown) {
       console.error('Gemini API Error (job post):', aiErr)
       return NextResponse.json({ error: 'Gemini API failed' }, { status: 500 })
     }
@@ -79,7 +79,7 @@ The description should be friendly, specific, and formatted with short paragraph
     }
 
     return NextResponse.json({ title, category, description })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('API Error in /api/ai/job-post:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
