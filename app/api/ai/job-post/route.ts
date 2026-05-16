@@ -50,16 +50,12 @@ The description should be friendly, specific, and formatted with short paragraph
 
     let aiResultText = ''
     try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000)
-
       aiResultText = await Promise.race([
         generateContent(prompt),
         new Promise<string>((_, reject) => {
           setTimeout(() => reject(new Error('Gemini timeout')), 10000)
         }),
       ])
-      clearTimeout(timeoutId)
     } catch (aiErr: any) {
       console.error('Gemini API Error (job post):', aiErr)
       return NextResponse.json({ error: 'Gemini API failed' }, { status: 500 })
