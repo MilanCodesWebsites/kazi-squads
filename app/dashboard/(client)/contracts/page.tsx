@@ -120,7 +120,7 @@ export default async function ContractsPage() {
 
             {c.status === 'Active' ? (
               <div className="mt-4">
-                <MarkCompleteButton contractId={c.id} />
+                <MarkCompleteButton contractId={c.id} amountText={c.amount} />
               </div>
             ) : null}
           </div>

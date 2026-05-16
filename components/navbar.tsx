@@ -13,25 +13,25 @@ export function Navbar() {
           <div className="h-8 w-8 rounded-lg bg-black text-white flex items-center justify-center">
             <HugeiconsIcon icon={UserMultipleIcon} size={18} color="currentColor" aria-hidden="true" />
           </div>
-          <span className="text-base font-semibold text-black">Remote</span>
+          <span className="text-base font-semibold text-black">Kazi</span>
         </div>
 
         {/* Center Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="#about" className="text-sm font-medium text-black/70 hover:text-black transition">
-            About
+          <Link href="#how-it-works" className="text-sm font-medium text-black/70 hover:text-black transition">
+            How it works
           </Link>
-          <Link href="#feature" className="text-sm font-medium text-black/70 hover:text-black transition">
-            Feature
+          <Link href="#platform" className="text-sm font-medium text-black/70 hover:text-black transition">
+            Platform
           </Link>
-          <Link href="#pricing" className="text-sm font-medium text-black/70 hover:text-black transition">
-            Pricing
+          <Link href="#ai-matching" className="text-sm font-medium text-black/70 hover:text-black transition">
+            AI Matching
           </Link>
-          <Link href="#contact" className="text-sm font-medium text-black/70 hover:text-black transition">
-            Contact
+          <Link href="#who-its-for" className="text-sm font-medium text-black/70 hover:text-black transition">
+            Who it's for
           </Link>
-          <Link href="#blog" className="text-sm font-medium text-black/70 hover:text-black transition">
-            Blog
+          <Link href="#payments" className="text-sm font-medium text-black/70 hover:text-black transition">
+            Payments
           </Link>
         </div>
 

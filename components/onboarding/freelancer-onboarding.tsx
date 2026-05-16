@@ -224,7 +224,6 @@ export default function FreelancerOnboarding() {
           const parts = splitName(fullName)
           setFirstName(parts.firstName)
           setLastName(parts.lastName)
-          setStep(1)
         }
       } catch {
         // ignore

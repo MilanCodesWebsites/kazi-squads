@@ -1,280 +1,59 @@
-# Kazi
+# kazi.
 
-Work, matched by AI, paid by Squad.
+kazi is an ai-powered, fully end-to-end freelance marketplace built specifically for the nigerian informal economy. it connects skilled workers with clients looking to hire, ensuring that talent is discovered, jobs are completed, and payments are secured.
 
-Kazi is a Nigerian freelance marketplace that connects skilled informal workers with clients. Workers build a verified profile, AI matches them to relevant jobs, and payments flow through Squad escrow. Money moves only when work is done.
+## the stack
+- **frontend:** next.js (app router), react, tailwind css
+- **backend:** next.js server actions & api routes
+- **database & auth:** supabase
+- **ai matching & generation:** google gemini ai (gemini-3.1-flash-lite)
+- **payments & escrow:** squad api & paystack (bank resolution)
 
----
+## core features
 
-## what it does
+### 1. dual-sided onboarding
+- users can easily sign up via google oauth or email/password.
+- **client flow:** businesses can set up their company profile, providing details about what they do and who they are looking to hire.
+- **worker flow:** freelancers go through a multi-step onboarding wizard to define their skills, location, experience level, availability, hourly rates, and bank account details for direct payout.
 
-- workers onboard with a guided profile setup flow
-- clients post jobs in under 2 minutes
-- Gemini AI matches workers to jobs based on skills, location, and context
-- clients pay via Squad checkout into escrow
-- Squad webhooks confirm payment and activate contracts
-- workers mark jobs as delivered, clients approve
-- Squad transfer API pays workers directly to their Nigerian bank account
-- Kazi takes a 10% platform fee on every completed transaction
+### 2. job posting & management
+- clients can post jobs with specific requirements, fixed budgets or negotiable ranges, required skills, and location preferences (remote or on-site).
+- jobs go live instantly and are broadcasted to matching freelancers on the platform.
 
----
+### 3. ai-powered job matching
+- powered by google gemini ai, kazi analyzes every worker's profile (skills, location, experience, bio) against all open job postings.
+- the ai ranks the jobs and assigns a "match score" (e.g. 94% match) along with a one-sentence reason why the job is a good fit.
+- workers see the most relevant opportunities the moment they log in, eliminating endless searching and scrolling.
 
-## tech stack
+### 4. ai cover letter assistant
+- applying for a job shouldn't be a chore. when a worker finds a matching job, they can click "write with ai ✦".
+- gemini ai instantly drafts a warm, professional, human-sounding cover letter that highlights the worker's specific skills relevant to that exact job description.
+- it's fully editable before submission.
 
-- **frontend/backend** - Next.js 14 (app router) on Vercel
-- **database** - Supabase (PostgreSQL + RLS)
-- **auth** - Supabase Auth (Google OAuth)
-- **AI** - Gemini API (profile enrichment + job matching)
-- **payments** - Squad API (checkout, webhooks, transfers)
-- **email** - Resend
+### 5. integrated escrow payments (squad)
+- trust is the biggest hurdle in freelancing. kazi solves this with built-in escrow.
+- when a client accepts a worker's bid, they click "accept & pay". this redirects them to a squad checkout page to deposit the contract amount.
+- the funds are held safely in escrow. kazi uses squad webhooks to instantly verify the payment and automatically activate the contract so the freelancer can begin working.
 
----
+### 6. automated payouts (paystack & squad)
+- when the job is completed and approved, the client clicks "mark as complete".
+- the platform automatically calculates the 10% platform fee and instantly initiates a direct bank transfer of the remaining 90% to the freelancer's registered nigerian bank account.
+- no digital wallets, no manual withdrawals, no delays.
 
-## getting started
+### 7. real-time notifications
+- both clients and freelancers have a notification bell in their dashboard that updates them on the status of their jobs, bids, contracts, and payments in real time.
 
-### prerequisites
+## how to run locally
 
-- Node.js 18+
-- A Supabase project
-- Squad sandbox account
-- Gemini API key
-- Resend account
+1. clone the repository.
+2. run `pnpm install` to install dependencies.
+3. duplicate `.env.example` to `.env` and fill in your keys:
+   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `GEMINI_API_KEY`
+   - `SQUAD_SECRET_KEY` and `SQUAD_PUBLIC_KEY`
+   - `PAYSTACK_SECRET_KEY`
+4. run `pnpm dev` to start the local development server on `localhost:3000`.
 
-### installation
-
-```bash
-git clone https://github.com/yourusername/kazi
-cd kazi
-npm install
-```
-
-### environment variables
-
-create a `.env.local` file in the root:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-
-GEMINI_API_KEY=
-
-SQUAD_SECRET_KEY=
-SQUAD_PUBLIC_KEY=
-SQUAD_WEBHOOK_SECRET=
-
-RESEND_API_KEY=
-
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### database setup
-
-run the SQL schema in your Supabase SQL editor:
-
-```sql
--- users
-create table users (
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  full_name text,
-  role text check (role in ('worker', 'client')) not null,
-  avatar_url text,
-  created_at timestamp default now()
-);
-
--- worker profiles
-create table worker_profiles (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  title text,
-  bio text,
-  skills text[],
-  location_state text,
-  location_city text,
-  work_preference text check (work_preference in ('remote', 'onsite', 'both')),
-  availability text check (availability in ('full-time', 'part-time', 'weekends')),
-  min_rate numeric,
-  years_experience text,
-  bank_name text,
-  account_number text,
-  trust_score integer default 0,
-  profile_views integer default 0,
-  created_at timestamp default now()
-);
-
--- portfolio links
-create table portfolio_links (
-  id uuid primary key default gen_random_uuid(),
-  worker_id uuid references worker_profiles(id) on delete cascade,
-  label text,
-  url text,
-  created_at timestamp default now()
-);
-
--- jobs
-create table jobs (
-  id uuid primary key default gen_random_uuid(),
-  client_id uuid references users(id) on delete cascade,
-  title text not null,
-  description text not null,
-  category text not null,
-  budget_min numeric,
-  budget_max numeric,
-  is_negotiable boolean default false,
-  location_preference text check (location_preference in ('remote', 'onsite', 'both')),
-  location_city text,
-  deadline date,
-  is_urgent boolean default false,
-  status text default 'open' check (status in ('open', 'in_review', 'closed')),
-  created_at timestamp default now()
-);
-
--- applications
-create table applications (
-  id uuid primary key default gen_random_uuid(),
-  job_id uuid references jobs(id) on delete cascade,
-  worker_id uuid references users(id) on delete cascade,
-  cover_letter text not null,
-  proposed_rate numeric not null,
-  estimated_delivery text not null,
-  status text default 'pending' check (status in ('pending', 'viewed', 'accepted', 'rejected')),
-  created_at timestamp default now()
-);
-
--- application portfolio links
-create table application_links (
-  id uuid primary key default gen_random_uuid(),
-  application_id uuid references applications(id) on delete cascade,
-  label text,
-  url text
-);
-
--- contracts
-create table contracts (
-  id uuid primary key default gen_random_uuid(),
-  job_id uuid references jobs(id),
-  application_id uuid references applications(id),
-  client_id uuid references users(id),
-  worker_id uuid references users(id),
-  amount numeric not null,
-  status text default 'payment_pending' check (status in ('payment_pending', 'active', 'delivered', 'completed', 'disputed')),
-  squad_payment_ref text unique,
-  squad_transaction_ref text,
-  delivered_at timestamp,
-  completed_at timestamp,
-  created_at timestamp default now()
-);
-
--- reviews
-create table reviews (
-  id uuid primary key default gen_random_uuid(),
-  contract_id uuid references contracts(id),
-  reviewer_id uuid references users(id),
-  reviewee_id uuid references users(id),
-  rating integer check (rating between 1 and 5),
-  comment text,
-  created_at timestamp default now()
-);
-
--- notifications
-create table notifications (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references users(id) on delete cascade,
-  message text not null,
-  type text,
-  is_read boolean default false,
-  created_at timestamp default now()
-);
-```
-
-### run locally
-
-```bash
-npm run dev
-```
-
-open [http://localhost:3000](http://localhost:3000)
-
----
-
-## project structure
-
-```
-kazi/
-├── app/
-│   ├── page.tsx                  # landing page
-│   ├── auth/                     # google auth callback
-│   ├── onboarding/               # role selection + initial setup
-│   ├── profile-setup/            # worker profile setup flow
-│   ├── dashboard/                # worker + client dashboards
-│   ├── jobs/                     # job listings + job detail
-│   └── api/
-│       ├── match/                # Gemini job matching
-│       ├── checkout/             # Squad payment link creation
-│       ├── webhook/              # Squad webhook handler
-│       └── transfer/             # Squad payout to worker
-├── components/
-├── lib/
-│   ├── supabase.ts
-│   ├── gemini.ts
-│   └── squad.ts
-└── types/
-```
-
----
-
-## payment flow
-
-```
-client accepts bid
-→ POST /api/checkout (creates Squad payment link)
-→ client pays via Squad checkout
-→ Squad fires webhook to POST /api/webhook
-→ webhook verifies Squad signature
-→ contract status flips to 'active'
-→ worker delivers, client approves
-→ POST /api/transfer (Squad pays worker bank account)
-→ Kazi deducts 10% before transfer
-→ contract status flips to 'completed'
-```
-
----
-
-## AI matching
-
-when a job is posted, `/api/match` is called with the job description and all available worker profiles. Gemini scores compatibility based on skills, location, work preference, and experience. workers see jobs ranked by relevance. clients see the most suitable applicants surfaced first.
-
----
-
-## squad API integration
-
-kazi uses three Squad APIs:
-
-| API | purpose |
-|-----|---------|
-| Checkout | generate payment links for contracts |
-| Webhook | confirm payment and activate contracts |
-| Transfer | pay workers to Nigerian bank accounts |
-
----
-
-## deployment
-
-the app deploys to Vercel. connect your repo and add all environment variables in the Vercel dashboard.
-
-make sure your Squad webhook URL is set to:
-```
-https://your-domain.vercel.app/api/webhook
-```
-
----
-
-## built by
-
-- **Izuehie Luckyprince Sochimaobi** - Team Lead, Lead Developer
-- **Chife Chinonso** - Head of Operations
-- **Ezekiel Iyeli** - Marketing Officer
-
-built for Squad Hackathon 3.0 — Smart Systems: The Intelligent Economy
-```
+## the vision
+kazi isn't just a job board. it's a trust infrastructure. by combining ai discovery with secure escrow payments, kazi empowers nigerian freelancers to focus on what they do best—delivering great work—while clients get exactly what they paid for without the headache of whatsapp negotiations.

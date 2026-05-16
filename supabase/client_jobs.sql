@@ -14,7 +14,7 @@ $$;
 
 -- Client profile
 create table if not exists public.client_profiles (
-  id uuid primary key default gen_random_uuid(),
+  id uuid primary key defaualt gen_random_uuid(),
 
   -- Who owns this profile
   auth_provider text not null check (auth_provider in ('nextauth', 'supabase')),

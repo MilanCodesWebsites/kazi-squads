@@ -110,8 +110,8 @@ export default async function JobsPage() {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <Button variant="outline" className="rounded-xl shadow-none">
-                View Bids
+              <Button asChild variant="outline" className="rounded-xl shadow-none">
+                <Link href={`/dashboard/jobs/${job.id}`}>View Bids</Link>
               </Button>
             </div>
           </div>

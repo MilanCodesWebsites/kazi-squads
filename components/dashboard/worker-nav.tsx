@@ -10,6 +10,7 @@ import {
   File01Icon,
   House01Icon,
   UserIcon,
+  Search01Icon
 } from '@hugeicons/core-free-icons'
 
 import { cn } from '@/lib/utils'
@@ -24,28 +25,34 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   {
-    href: '/dashboard',
+    href: '/worker',
     label: 'Home',
     icon: House01Icon,
-    match: (p) => p === '/dashboard',
+    match: (p) => p === '/worker',
   },
   {
-    href: '/dashboard/jobs',
+    href: '/worker/jobs',
     label: 'Jobs',
-    icon: Briefcase01Icon,
-    match: (p) => p.startsWith('/dashboard/jobs'),
+    icon: Search01Icon,
+    match: (p) => p.startsWith('/worker/jobs') && !p.startsWith('/worker/applications'),
   },
   {
-    href: '/dashboard/contracts',
+    href: '/worker/applications',
+    label: 'Applications',
+    icon: Briefcase01Icon,
+    match: (p) => p.startsWith('/worker/applications'),
+  },
+  {
+    href: '/worker/contracts',
     label: 'Contracts',
     icon: File01Icon,
-    match: (p) => p.startsWith('/dashboard/contracts'),
+    match: (p) => p.startsWith('/worker/contracts'),
   },
   {
-    href: '/dashboard/profile',
+    href: '/worker/profile',
     label: 'Profile',
     icon: UserIcon,
-    match: (p) => p.startsWith('/dashboard/profile'),
+    match: (p) => p.startsWith('/worker/profile'),
   },
 ]
 
@@ -94,11 +101,11 @@ function BottomTab({ item, active }: { item: NavItem; active: boolean }) {
   )
 }
 
-export function DashboardNav() {
-  const pathnameRaw = usePathname() || '/dashboard'
+export function WorkerNav() {
+  const pathnameRaw = usePathname() || '/worker'
   const pathname = pathnameRaw.endsWith('/') && pathnameRaw !== '/' ? pathnameRaw.slice(0, -1) : pathnameRaw
 
-  const hideBottomNav = pathname.startsWith('/dashboard/jobs/new')
+  const hideBottomNav = pathname.includes('/apply')
 
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
   const [profileId, setProfileId] = React.useState<string | null>(null)
@@ -108,7 +115,7 @@ export function DashboardNav() {
       .then((r) => r.json())
       .then((json: any) => {
         if (json?.user?.image) setAvatarUrl(json.user.image)
-        if (json?.roles?.clientProfileId) setProfileId(json.roles.clientProfileId)
+        if (json?.roles?.workerProfileId) setProfileId(json.roles.workerProfileId)
       })
       .catch(() => {})
   }, [])
@@ -172,4 +179,3 @@ export function DashboardNav() {
     </>
   )
 }
-

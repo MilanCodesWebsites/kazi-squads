@@ -14,17 +14,19 @@ async function getUserRoles(provider: 'nextauth' | 'supabase', userId: string) {
   const [clientRes, workerRes] = await Promise.all([
     supabaseAdmin
       .from('client_profiles')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact' })
       .eq(col, userId),
     supabaseAdmin
       .from('worker_onboarding')
-      .select('id', { count: 'exact', head: true })
+      .select('id', { count: 'exact' })
       .eq(col, userId),
   ])
 
   return {
     hasClientProfile: (clientRes.count ?? 0) > 0,
     hasWorkerProfile: (workerRes.count ?? 0) > 0,
+    clientProfileId: clientRes.data?.[0]?.id ?? null,
+    workerProfileId: workerRes.data?.[0]?.id ?? null,
   }
 }
 
