@@ -154,20 +154,57 @@ export default function NewJobPage() {
   }, [dueDate])
 
   async function generateAiPreview() {
-    if (!aiPrompt.trim()) return
+    const prompt = aiPrompt.trim()
+    if (!prompt) return
     setAiGenerating(true)
 
-    await new Promise((r) => window.setTimeout(r, 450))
+    const fallback = () => {
+      setTitle((prev) => prev || prompt.slice(0, 60))
+      setCategory((prev) => (prev ? prev : 'tech'))
+      setDescription((prev) =>
+        prev ||
+        `${prompt}\n\nDeliverables:\n- \n\nContext:\n- \n\nNice to have:\n- `,
+      )
+    }
 
-    const prompt = aiPrompt.trim()
-    setTitle((prev) => prev || prompt.slice(0, 60))
-    setCategory((prev) => (prev ? prev : 'tech'))
-    setDescription((prev) =>
-      prev ||
-      `${prompt}\n\nDeliverables:\n- \n\nContext:\n- \n\nNice to have:\n- `,
-    )
+    try {
+      const res = await fetch('/api/ai/job-post', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      })
 
-    setAiGenerating(false)
+      if (!res.ok) {
+        fallback()
+        return
+      }
+
+      const data = (await res.json()) as {
+        title?: string
+        category?: string
+        description?: string
+      }
+
+      const nextTitle = typeof data.title === 'string' ? data.title.trim() : ''
+      const nextCategory = typeof data.category === 'string' ? data.category.trim() : ''
+      const nextDescription = typeof data.description === 'string' ? data.description.trim() : ''
+
+      const validCategory = CATEGORY_OPTIONS.some((opt) => opt.value === nextCategory)
+        ? (nextCategory as JobCategory)
+        : ''
+
+      if (nextTitle) setTitle((prev) => prev || nextTitle)
+      if (validCategory) setCategory((prev) => (prev ? prev : validCategory))
+      if (nextDescription) setDescription((prev) => prev || nextDescription)
+
+      if (!nextTitle && !nextDescription) {
+        fallback()
+      }
+    } catch {
+      fallback()
+    } finally {
+      setAiGenerating(false)
+    }
   }
 
   async function postJob() {
